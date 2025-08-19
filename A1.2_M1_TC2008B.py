@@ -73,8 +73,15 @@ def pintarCuadricula(v: int, dimWX: int, dimWY: int, dimGX: int, dimGY: int, tC:
         pg.draw.line(v, 0x333333, (j * tC, 0), (j * tC, dimWY))
 
 # Contar vecinos vivos de la célula.
-def contarVecinos(x: int, y: int):
-    vecinosVivos = 0
+def contarVecinos(celula, x: int, y: int):
+    
+    #Generar una matriz de 3x3, y se evita cometer errores en caso de que la celula se encuentre en marcos
+    x0, x1 = max(0, x-1), min(celula.shape[0]-1, x+1)
+    y0, y1 = max(0, y-1), min(celula.shape[1]-1, y+1)
+    
+    # Se suman todos los vecinos al rededor del 3x3
+    vecinosVivos = np.sum(celula[x0:x1+1, y0:y1+1]) - celula[x, y]
+    
     return vecinosVivos
 
 # Actualizar estados de la matriz.
