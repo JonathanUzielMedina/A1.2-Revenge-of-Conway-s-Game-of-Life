@@ -1,1 +1,1 @@
-# A1.2-Revenge-of-Conway-s-Game-of-Life
+# A1.2 Revenge of Conway's Game of Life
