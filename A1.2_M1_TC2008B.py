@@ -49,7 +49,7 @@ ANCHO_VENTANA, ALTO_VENTANA = 800, 700
 
 pg.display.set_caption(f"A1.2 Revenge of Conway's Game of Life (D = {reglas[0]}; S = {reglas[1]}; R = {reglas[2]}; O = {reglas[3]})")
 
-ventana = pg.display.set_mode((ALTO_VENTANA, ALTO_VENTANA))
+ventana = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
 ventana.fill(0x000000)
 
 TAM_CELDA = 20  # Tamaño de cada celda.
@@ -61,6 +61,8 @@ ALTO_CUADRICULA = ALTO_VENTANA // TAM_CELDA
 # ____________________________________________________________
 
 # Funciones.
+
+#tC es tamaño de Celcda, v es ventana, dimWY y domGX son dimensiones
 
 # Dibujar la cuadrícula.
 def pintarCuadricula(v: int, dimWX: int, dimWY: int, dimGX: int, dimGY: int, tC: int):
@@ -84,33 +86,54 @@ def contarVecinos(celula, x: int, y: int):
     
     return vecinosVivos
 
-# Actualizar estados de la matriz.
-def actualizarEstados(v, dimGX, dimGY, tC: int, color, st: set, r: tuple):
+def pintarCeldasVivas(ventana:int, matriz, tamCelda:int):
+    ventana.fill(0x00000) #Ventana en blanco
+    height, width = matriz.shape
+    
+    for i in range (height):
+        for j in range (width):
+            if matriz[i,j] == 1:
+                pg.draw.rect(ventana,0x00FFEE, (i * tamCelda, j*tamCelda,tamCelda,tamCelda))
 
-    siguienteEst = np.zeros((dimGX, dimGY)) # Matriz del siguiente estado.
+    pintarCuadricula(ventana, ANCHO_VENTANA, ALTO_VENTANA, ANCHO_CUADRICULA, ALTO_CUADRICULA, tamCelda)
+    
+# Actualizar estados de la matriz.
+def actualizarEstados(matriz,reglas, dimGX, dimGY):
+    D, S, R, O = reglas
+    height, width = matriz.shape
+    nuevoEstado = np.zeros((dimGX, dimGY)) # Matriz del siguiente estado.
 
     # Iterar sobre n estados.
-    for s in st:
-        x, y, val = s
-        celda = (x * tC, y * tC)
-        pg.draw.rect(v, color, (*celda, tC, tC))   # Pintar la celda de la célula viva.
+    for i in range(height):
+        for j in range(width):
+            vecinos = contarVecinos(matriz,i,j)
 
-# ____________________________________________________________
+            if matriz[i,j] == 1:
+                if vecinos > O or vecinos < D:
+                    nuevoEstado[i,j] = 0
+                if vecinos <= S:
+                    nuevoEstado[i,j] = 1
+            else:
+                if vecinos >= R or vecinos <= O:
+                    nuevoEstado[i,j] = 1
+    
+    return nuevoEstado
+
+                    
+
+
+
+#____________________________________________________________
 
 # Programa principal.
 if __name__ == "__main__":
     
     pg.init()                               # Iniciar el motor de PyGame.
 
-    pintarCuadricula(ventana,
-                     ANCHO_VENTANA,
-                     ALTO_VENTANA,
-                     ANCHO_CUADRICULA,
-                     ALTO_CUADRICULA,
-                     TAM_CELDA)             # Dibujar la cuadrícula.
+    matriz = np.random.randint(2,size= (ANCHO_CUADRICULA,ALTO_CUADRICULA))
     
-    estados = set()                         # Estados del autómata celular.
     simRunning = True                       # La simulación se está ejecutando.
+
 
     # Bucle de ejecución de la simulación.
     while True:
@@ -135,16 +158,9 @@ if __name__ == "__main__":
         
         # Agregar células mientras corre la simulación.
         if simRunning:
-            estados.add((random.randrange(0, ANCHO_CUADRICULA), random.randrange(0, ALTO_CUADRICULA), random.randrange(0,1)))
 
-            actualizarEstados(ventana,
-                              ANCHO_CUADRICULA,
-                              ALTO_CUADRICULA,
-                              TAM_CELDA,
-                              0x00FFEE,
-                              estados,
-                              reglas)
-            
+            matriz = actualizarEstados(matriz, reglas, ANCHO_CUADRICULA, ALTO_CUADRICULA)
+            pintarCeldasVivas(ventana,matriz,TAM_CELDA)            
             pg.display.update()
             time.sleep(0.01)
 

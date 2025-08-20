@@ -1,0 +1,90 @@
+import numpy as np
+import pygame as pg
+import time
+
+# ______________________________________________________________
+# Reglas: (D, S, R, O)
+# - Muere si vecinos < D o vecinos > O
+# - Sobrevive si vecinos <= S
+# - Nace si R <= vecinos <= O
+reglas = (2, 3, 3, 3)
+
+# _____________________________________________________________
+# Configuración visual del simulador.
+ANCHO_VENTANA, ALTO_VENTANA = 800, 700
+
+pg.display.set_caption(f"A1.2 Revenge of Conway's Game of Life (D = {reglas[0]}; S = {reglas[1]}; R = {reglas[2]}; O = {reglas[3]})")
+ventana = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
+ventana.fill(0x000000)
+
+TAM_CELDA = 20  # Tamaño de cada celda.
+
+# Dimensiones de la cuadrícula (en celdas).
+ANCHO_CUADRICULA = ANCHO_VENTANA // TAM_CELDA
+ALTO_CUADRICULA = ALTO_VENTANA // TAM_CELDA
+
+# ____________________________________________________________
+def pintarCuadricula(v, dimWX, dimWY, dimGX, dimGY, tC):
+    for i in range(dimGY):
+        pg.draw.line(v, 0x333333, (0, i * tC), (dimWX, i * tC))
+    for j in range(dimGX):
+        pg.draw.line(v, 0x333333, (j * tC, 0), (j * tC, dimWY))
+
+def contarVecinos(celula, y, x):
+    y0, y1 = max(0, y-1), min(celula.shape[0]-1, y+1)
+    x0, x1 = max(0, x-1), min(celula.shape[1]-1, x+1)
+    vecinosVivos = np.sum(celula[y0:y1+1, x0:x1+1]) - celula[y, x]
+    return vecinosVivos
+
+def pintarCeldasVivas(ventana, matriz, tamCelda):
+    ventana.fill(0x000000)  # Fondo negro
+    for y in range(matriz.shape[0]):      # filas
+        for x in range(matriz.shape[1]):  # columnas
+            if matriz[y, x] == 1:
+                pg.draw.rect(ventana, 0x00FFEE, (x * tamCelda, y * tamCelda, tamCelda, tamCelda))
+    pintarCuadricula(ventana, ANCHO_VENTANA, ALTO_VENTANA, ANCHO_CUADRICULA, ALTO_CUADRICULA, tamCelda)
+
+def actualizarEstados(matriz, reglas):
+    D, S, R, O = reglas
+    nuevoEstado = np.zeros_like(matriz)
+
+    for y in range(matriz.shape[0]):
+        for x in range(matriz.shape[1]):
+            vecinos = contarVecinos(matriz, y, x)
+
+            if matriz[y, x] == 1:  # Celda viva
+                if vecinos < D or vecinos > O:
+                    nuevoEstado[y, x] = 0  # muere
+                elif vecinos <= S:
+                    nuevoEstado[y, x] = 1  # sobrevive
+            else:  # Celda muerta
+                if R <= vecinos <= O:
+                    nuevoEstado[y, x] = 1  # nace
+    return nuevoEstado
+
+#____________________________________________________________
+if __name__ == "__main__":
+    pg.init()
+
+    # OJO: matriz con forma (filas=alto, columnas=ancho)
+    matriz = np.random.randint(2, size=(ALTO_CUADRICULA, ANCHO_CUADRICULA))
+
+    simRunning = True
+
+    while True:
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                simRunning = False
+                pg.quit()
+            elif e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
+                    simRunning = False
+                    pg.quit()
+                if e.key == pg.K_SPACE:  # Pausa/reanudar
+                    simRunning = not simRunning
+
+        if simRunning:
+            matriz = actualizarEstados(matriz, reglas)
+            pintarCeldasVivas(ventana, matriz, TAM_CELDA)
+            pg.display.update()
+            time.sleep(0.05)
