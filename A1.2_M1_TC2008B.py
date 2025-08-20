@@ -108,14 +108,14 @@ def actualizarEstados(matriz,reglas, dimGX, dimGY):
         for j in range(width):
             vecinos = contarVecinos(matriz,i,j)
 
-            if matriz[i,j] == 1:
+            if matriz[i,j] == 1: #si estan vivos
                 if vecinos > O or vecinos < D:
-                    nuevoEstado[i,j] = 0
-                if vecinos <= S:
-                    nuevoEstado[i,j] = 1
-            else:
-                if vecinos >= R or vecinos <= O:
-                    nuevoEstado[i,j] = 1
+                    nuevoEstado[i,j] = 0 #mueren
+                elif vecinos <= S:
+                    nuevoEstado[i,j] = 1 #sobreviven
+            else: #si estan muertos
+                if vecinos >= R and vecinos <= O:
+                    nuevoEstado[i,j] = 1 #nacen
     
     return nuevoEstado
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
             matriz = actualizarEstados(matriz, reglas, ANCHO_CUADRICULA, ALTO_CUADRICULA)
             pintarCeldasVivas(ventana,matriz,TAM_CELDA)            
             pg.display.update()
-            time.sleep(0.01)
+            time.sleep(0.1)
 
 # ____________________________________________________________
 
