@@ -86,25 +86,33 @@ def contarVecinos(celula, x: int, y: int):
     return vecinosVivos
 
 def pintarCeldasVivas(ventana:int, matriz, tamCelda:int):
-    ventana.fill(0x00000) #Ventana en blanco
-    height, width = matriz.shape
+    ventana.fill(0x00000) #Ventana -> color negro
+
+    #devuelve las dimensiones de la matriz [filas,columnas]
+    height, width = matriz.shape 
     
+    #Pasa por cada elemento de la matriz en la iteración
     for i in range (height):
         for j in range (width):
+            #Si esta viva, pinta el espacio equivalente en la ventana
             if matriz[i,j] == 1:
                 pg.draw.rect(ventana,0x00FFEE, (i * tamCelda, j*tamCelda,tamCelda,tamCelda))
 
+    #Se pinta una cuadrícula arriba, para mejor comprensión visual
     pintarCuadricula(ventana, ANCHO_VENTANA, ALTO_VENTANA, ANCHO_CUADRICULA, ALTO_CUADRICULA, tamCelda)
     
 # Actualizar estados de la matriz.
 def actualizarEstados(matriz,reglas, dimGX, dimGY):
     D, S, R, O = reglas
+    #devuelve las dimensiones de la matriz [fila,columnas]
     height, width = matriz.shape
     nuevoEstado = np.zeros((dimGX, dimGY)) # Matriz del siguiente estado.
 
-    # Iterar sobre n estados.
+    # Iterar en cada elemento de la matriz para evaluar si vive o muere respecto a las reglas
     for i in range(height):
         for j in range(width):
+
+            #Se obtiene la cantidad de vecinos vivos
             vecinos = contarVecinos(matriz,i,j)
 
             if matriz[i,j] == 1: #si estan vivos
@@ -129,6 +137,7 @@ if __name__ == "__main__":
     
     pg.init()                               # Iniciar el motor de PyGame.
 
+    #Crear la matroz inicial con números aleatorios de 0 y 1
     matriz = np.random.randint(2,size= (ANCHO_CUADRICULA,ALTO_CUADRICULA))
     
     simRunning = True                       # La simulación se está ejecutando.
@@ -155,13 +164,12 @@ if __name__ == "__main__":
                 elif e.key == pg.K_SPACE and not simRunning:
                     simRunning = True
         
-        # Agregar células mientras corre la simulación.
+        #Si la simulación corre, pinta las celdas vivas y actualiza el estado
         if simRunning:
-
-            matriz = actualizarEstados(matriz, reglas, ANCHO_CUADRICULA, ALTO_CUADRICULA)
             pintarCeldasVivas(ventana,matriz,TAM_CELDA)            
+            matriz = actualizarEstados(matriz, reglas, ANCHO_CUADRICULA, ALTO_CUADRICULA)
             pg.display.update()
-            time.sleep(0.1)
+            time.sleep(0.5) #Mientrás más cercano a 1, más lenta la simulación
 
 # ____________________________________________________________
 
