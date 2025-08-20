@@ -67,11 +67,11 @@ ALTO_CUADRICULA = ALTO_VENTANA // TAM_CELDA
 # Dibujar la cuadrícula.
 def pintarCuadricula(v: int, dimWX: int, dimWY: int, dimGX: int, dimGY: int, tC: int):
     # Dibujar líneas horizontales.
-    for i in range(dimGX):
+    for i in range(dimGY):
         pg.draw.line(v, 0x333333, (0, i * tC), (dimWX, i * tC))
     
     # Dibujar líneas verticales.
-    for j in range(dimGY):
+    for j in range(dimGX):
         pg.draw.line(v, 0x333333, (j * tC, 0), (j * tC, dimWY))
 
 # Contar vecinos vivos de la célula.
