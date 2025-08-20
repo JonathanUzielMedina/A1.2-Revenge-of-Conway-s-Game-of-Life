@@ -32,7 +32,6 @@ La N cantidad de vecinos que la célula tenga determina si vive o muere.
 3.- La célula nace si N <= O y N >= R.
 """
 
-import random
 import numpy as np
 import pygame as pg
 import time
